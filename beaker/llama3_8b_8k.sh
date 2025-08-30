@@ -86,10 +86,10 @@ DISTRIBUTED_ARGS=(
     --tensor-model-parallel-size 1
     --context-parallel-size 1
     --sequence-parallel
-    # --use-distributed-optimizer
     --use-torch-fsdp2
-    --overlap-grad-reduce
-    --overlap-param-gather
+    # --use-distributed-optimizer
+    # --overlap-grad-reduce
+    # --overlap-param-gather
 )
 
 TRAINING_ARGS=(
