@@ -40,7 +40,7 @@ WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
 PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
 # Fixed model and training parameters
-MICRO_BATCH_SIZE=2
+MICRO_BATCH_SIZE=1
 GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE))
 NUM_LAYERS=32  
 DTYPE="bf16"
@@ -127,6 +127,8 @@ if [[ "$DTYPE" == "fp8" ]]; then
         "--fp8-amax-history-len 1024"
         "--fp8-amax-compute-algo max"
         "--fp8-param-gather"
+        "--bf16"
+        "--grad-reduce-in-bf16"
     )
 elif [[ "$DTYPE" == "bf16" ]]; then
     DTYPE_ARGS+=(
