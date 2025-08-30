@@ -2,7 +2,7 @@
 
 set -ex
 
-script="${1:-./beaker/llama3_8b_8k.sh}"
+script="${1:-beaker/llama3_8b_8k.sh}"
 
 name=$(basename "$script")
 # Remove file extension for naming.
