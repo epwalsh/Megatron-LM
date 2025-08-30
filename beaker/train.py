@@ -247,6 +247,8 @@ if __name__ == "__main__":
             extra_args_provider=add_modelopt_args if has_nvidia_modelopt else None,
             store=store,
         )
+        print_rank_0("Training complete")
     finally:
         if dist.is_initialized():
+            print_rank_0("Shutting down process group...")
             dist.destroy_process_group()

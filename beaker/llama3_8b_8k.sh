@@ -33,15 +33,14 @@ else
     MASTER_ADDR=${MASTER_ADDR:-localhost}
     MASTER_PORT=${MASTER_PORT:-6000}
 fi
+WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
 
 # Path to the pretrain_gpt.py script, assuming this script is run from the root of the Megatron-LM repository
 PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
 # Fixed model and training parameters
-TP_SIZE=1     
-CP_SIZE=1     
-MICRO_BATCH_SIZE=4
-GLOBAL_BATCH_SIZE=128
+MICRO_BATCH_SIZE=1
+GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE))
 NUM_LAYERS=32  
 DTYPE="fp8"
 SEQ_LENGTH=8192
@@ -84,8 +83,8 @@ MODEL_ARGS=(
 )
 
 DISTRIBUTED_ARGS=(
-    --tensor-model-parallel-size $TP_SIZE
-    --context-parallel-size $CP_SIZE
+    --tensor-model-parallel-size 1
+    --context-parallel-size 1
     --sequence-parallel
     --use-distributed-optimizer
     --overlap-grad-reduce
