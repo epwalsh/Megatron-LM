@@ -2,15 +2,11 @@
 
 set -ex
 
-script="${1:-mixtral/8x7b_8k.sh}"
-# Valid script names are:
-# - llama3/8b_8k.sh
-# - llama3/70b_8k.sh
-# - llama3/8b_128k.sh
-# - mixtral/8x7b_8k.sh
+script="${1:-./beaker/llama3_8b_8k.sh}"
 
+name=$(basename "$script")
 # Remove file extension for naming.
-name="${script%.*}"
+name="${name%.*}"
 # Replace slashes in path with dashes.
 name="${name//\//-}"
 # Replace underscores with dashes for run name.
@@ -35,8 +31,7 @@ gantry run \
     --install=beaker/install.sh \
     --gpu-type=b200 \
     --gpus=8 -- \
-    echo "Hello, World!"
-
+    "$script"
 
     # --replicas=2 \
     # --leader-selection \
