@@ -20,6 +20,7 @@ gantry run \
     --allow-dirty \
     --name="${name}-$(date +%Y%m%d-%H%M%S)" \
     --description="Megatron-LM ${name}" \
+    --workspace=ai2/google_benchmarks \
     --group=petew/B200_benchmarks \
     --group="petew/B200_benchmarks_${group_name}" \
     --priority=urgent \

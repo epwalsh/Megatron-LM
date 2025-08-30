@@ -2,6 +2,7 @@
 
 # Environment variables for performance tuning
 export CUDA_DEVICE_MAX_CONNECTIONS=${CUDA_DEVICE_MAX_CONNECTIONS:-1}
+export OMP_NUM_THREADS=8
 #export LOG_LEVEL=${LOG_LEVEL:-INFO}
 #export NCCL_IB_TIMEOUT=${NCCL_IB_TIMEOUT:-19}
 #export NVTE_FWD_LAYERNORM_SM_MARGIN=${NVTE_FWD_LAYERNORM_SM_MARGIN:-16}
@@ -19,12 +20,19 @@ mkdir -p "$(dirname "$CHECKPOINT_PATH")"
 mkdir -p "$(dirname "$TENSORBOARD_LOGS_PATH")"
 
 # Distributed training setup
-GPUS_PER_NODE=8
-NUM_NODES=1
-MASTER_ADDR=${MASTER_ADDR:-localhost}
-MASTER_PORT=${MASTER_PORT:-6000}
-NODE_RANK=${NODE_RANK:-0}
-WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
+if [[ -n "$BEAKER_REPLICA_COUNT" ]]; then
+    GPUS_PER_NODE=8
+    NUM_NODES="$BEAKER_REPLICA_COUNT"
+    NODE_RANK="$BEAKER_REPLICA_RANK"
+    MASTER_ADDR="$BEAKER_LEADER_REPLICA_HOSTNAME"
+    MASTER_PORT=29400
+else
+    GPUS_PER_NODE=8
+    NUM_NODES=1
+    NODE_RANK=${NODE_RANK:-0}
+    MASTER_ADDR=${MASTER_ADDR:-localhost}
+    MASTER_PORT=${MASTER_PORT:-6000}
+fi
 
 # Path to the pretrain_gpt.py script, assuming this script is run from the root of the Megatron-LM repository
 PRETRAIN_SCRIPT_PATH="pretrain_gpt.py"
@@ -79,7 +87,7 @@ MODEL_ARGS=(
 TRAINING_ARGS=(
     --micro-batch-size $MICRO_BATCH_SIZE
     --global-batch-size $GLOBAL_BATCH_SIZE
-    --train-samples 1953125000
+    --train-samples 1000
     --lr-decay-samples 1949218748
     --lr-warmup-samples 3906252
     --lr 0.00015
@@ -161,8 +169,8 @@ fi
 
 EVAL_AND_LOGGING_ARGS=(
     --log-interval 1
-    --eval-iters 32
-    --eval-interval 100
+    --eval-iters 0
+    --eval-interval 1000
     --save-interval 1000
     --log-throughput
     --profile
