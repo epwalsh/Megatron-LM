@@ -83,9 +83,7 @@ MODEL_ARGS=(
 )
 
 DISTRIBUTED_ARGS=(
-    --tensor-model-parallel-size 1
     --context-parallel-size 1
-    --sequence-parallel
     --use-torch-fsdp2
     --no-gradient-accumulation-fusion
     # --use-distributed-optimizer

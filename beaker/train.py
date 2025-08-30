@@ -248,6 +248,7 @@ if __name__ == "__main__":
             store=store,
         )
         print_rank_0("Training complete")
+        dist.barrier()
     finally:
         if dist.is_initialized():
             print_rank_0("Shutting down process group...")
