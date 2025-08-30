@@ -84,7 +84,7 @@ MODEL_ARGS=(
 )
 
 DISTRIBUTED_ARGS=(
-    --init-model-with-meta-device
+    # --init-model-with-meta-device
     --data-parallel-sharding-strategy optim_grads_params
     --context-parallel-size 1
     --use-torch-fsdp2
