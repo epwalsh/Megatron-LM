@@ -4,12 +4,16 @@
 
 import os
 import sys
+
 import torch
 
 from megatron.core import Timers
 from megatron.core.config import set_experimental_flag
 from megatron.core.energy_monitor import EnergyMonitor
-from megatron.core.num_microbatches_calculator import init_num_microbatches_calculator, unset_num_microbatches_calculator
+from megatron.core.num_microbatches_calculator import (
+    init_num_microbatches_calculator,
+    unset_num_microbatches_calculator,
+)
 from megatron.training import dist_signal_handler
 from megatron.training.tokenizer import build_tokenizer
 
@@ -22,6 +26,7 @@ _GLOBAL_ADLR_AUTORESUME = None
 _GLOBAL_TIMERS = None
 _GLOBAL_ENERGY_MONITOR = None
 _GLOBAL_SIGNAL_HANDLER = None
+_GLOBAL_BEAKER_CLIENT = None
 
 def get_args():
     """Return arguments."""
@@ -45,6 +50,10 @@ def get_wandb_writer():
     """Return tensorboard writer. It can be None so no need
     to check if it is initialized."""
     return _GLOBAL_WANDB_WRITER
+
+
+def get_beaker_client():
+    return _GLOBAL_BEAKER_CLIENT
 
 
 def get_one_logger():
@@ -100,6 +109,7 @@ def set_global_variables(args, build_tokenizer=True):
         _ = _build_tokenizer(args)
     _set_tensorboard_writer(args)
     _set_wandb_writer(args)
+    _set_beaker_client(args)
     _set_one_logger(args)
     _set_adlr_autoresume(args)
     _set_timers(args)
@@ -214,6 +224,17 @@ def _set_wandb_writer(args):
         _GLOBAL_WANDB_WRITER = wandb
 
 
+def _set_beaker_client(args):
+    del args
+    global _GLOBAL_BEAKER_CLIENT
+    _ensure_var_is_not_initialized(_GLOBAL_BEAKER_CLIENT,
+                                   'beaker client')
+    if os.environ.get("BEAKER_TOKEN") and os.environ.get("BEAKER_WORKLOAD_ID") is not None:
+        from beaker import Beaker
+
+        _GLOBAL_BEAKER_CLIENT = Beaker.from_env(check_for_upgrades=False)
+
+
 def _set_one_logger(args):
     global _GLOBAL_ONE_LOGGER
     _ensure_var_is_not_initialized(_GLOBAL_ONE_LOGGER, 'one logger')
@@ -290,6 +311,11 @@ def destroy_global_vars():
 
     global _GLOBAL_WANDB_WRITER
     _GLOBAL_WANDB_WRITER = None
+
+    global _GLOBAL_BEAKER_CLIENT
+    if _GLOBAL_BEAKER_CLIENT is not None:
+        _GLOBAL_BEAKER_CLIENT.close()
+    _GLOBAL_BEAKER_CLIENT = None
 
     global _GLOBAL_ONE_LOGGER
     _GLOBAL_ONE_LOGGER = None

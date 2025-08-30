@@ -40,8 +40,7 @@ PRETRAIN_SCRIPT_PATH="beaker/train.py"
 # Fixed model and training parameters
 TP_SIZE=1     
 CP_SIZE=1     
-PP_SIZE=1     
-MICRO_BATCH_SIZE=1
+MICRO_BATCH_SIZE=4
 GLOBAL_BATCH_SIZE=128
 NUM_LAYERS=32  
 DTYPE="fp8"
@@ -52,7 +51,7 @@ MAX_POSITION_EMBEDDINGS=8192
 DATA_CACHE_PATH="${PWD}/benchmark_cache_llama3_8b_fp8"
 mkdir -p "$DATA_CACHE_PATH"
 
-DISTRIBUTED_ARGS=(
+TORCHRUN_ARGS=(
     --nproc_per_node $GPUS_PER_NODE
     --nnodes $NUM_NODES
     --node_rank $NODE_RANK
@@ -82,6 +81,15 @@ MODEL_ARGS=(
     --apply-layernorm-1p 
     --untie-embeddings-and-output-weights
     --disable-bias-linear 
+)
+
+DISTRIBUTED_ARGS=(
+    --tensor-model-parallel-size $TP_SIZE
+    --context-parallel-size $CP_SIZE
+    --sequence-parallel
+    --use-distributed-optimizer
+    --overlap-grad-reduce
+    --overlap-param-gather
 )
 
 TRAINING_ARGS=(
@@ -118,23 +126,6 @@ if [[ "$DTYPE" == "fp8" ]]; then
         "--fp8-param-gather"
     )
 fi
-
-# Model parallelism arguments
-MODEL_PARALLEL_ARGS=(
-    --tensor-model-parallel-size $TP_SIZE
-    --context-parallel-size $CP_SIZE
-    # --pipeline-model-parallel-size $PP_SIZE # Not explicitly set in llama script options, assume 1 if not multi-node PP
-    --sequence-parallel  # Always enable sequence parallelism with TP_SIZE=2
-)
-
-# Distributed Data Parallel (DDP) arguments
-# From original script's ddp_args
-DDP_ARGS=(
-    --use-distributed-optimizer
-    --overlap-grad-reduce
-    --overlap-param-gather
-)
-TRAINING_ARGS+=("${DDP_ARGS[@]}")
 
 
 # Data arguments (conditional for mock vs real data)
@@ -191,11 +182,11 @@ if [ ! -f "$PRETRAIN_SCRIPT_PATH" ]; then
 fi
 
 # Run the training command
-torchrun ${DISTRIBUTED_ARGS[@]} \
+torchrun ${TORCHRUN_ARGS[@]} \
     "$PRETRAIN_SCRIPT_PATH" \
     ${MODEL_ARGS[@]} \
     ${TRAINING_ARGS[@]} \
+    ${DISTRIBUTED_ARGS[@]} \
     ${DTYPE_ARGS[@]} \
-    ${MODEL_PARALLEL_ARGS[@]} \
     ${DATA_ARGS_LIST[@]} \
     ${EVAL_AND_LOGGING_ARGS[@]}

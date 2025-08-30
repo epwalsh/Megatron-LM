@@ -3,23 +3,26 @@
 """Pretrain utilities."""
 
 import dataclasses
-from datetime import datetime
 import gc
 import logging
 import math
 import os
 import sys
+from datetime import datetime
 from typing import List, Optional
 
+import gantry
 import torch.distributed
 
 from megatron.core.optimizer.distrib_optimizer import DistributedOptimizer
+
 from .log_handler import CustomHandler
 
 # Make default logging level INFO, but filter out all log messages not from MCore.
 logging.basicConfig(handlers=[CustomHandler()], level=logging.INFO)
-from .theoretical_memory_usage import report_theoretical_memory
 import time
+
+from .theoretical_memory_usage import report_theoretical_memory
 
 # The earliest we can measure the start time.
 _TRAIN_START_TIME = time.time()
@@ -46,22 +49,25 @@ except ImportError:
 
 
 from megatron.core import mpu, tensor_parallel
-from megatron.core.utils import (
-    check_param_hashes_across_dp_replicas,
-    get_model_config,
-    StragglerDetector,
+from megatron.core.distributed import DistributedDataParallel as DDP
+from megatron.core.distributed import (
+    DistributedDataParallelConfig,
+    TorchFullyShardedDataParallelConfig,
+)
+from megatron.core.distributed.fsdp.mcore_fsdp_adapter import (
+    FullyShardedDataParallel as megatron_FSDP,
 )
 from megatron.core.fp8_utils import correct_amax_history_if_needed
-from megatron.training.checkpointing import load_checkpoint
-from megatron.training.checkpointing import save_checkpoint
-from megatron.training.checkpointing import checkpoint_exists
 from megatron.core.full_cuda_graph import FullCudaGraphWrapper
+from megatron.core.optimizer.optimizer import param_group_identifier_keys
 from megatron.core.transformer.cuda_graphs import TECudaGraphHelper
 from megatron.core.transformer.module import Float16Module
-from megatron.core.distributed import DistributedDataParallelConfig, TorchFullyShardedDataParallelConfig
-from megatron.core.distributed import DistributedDataParallel as DDP
-from megatron.core.distributed.fsdp.mcore_fsdp_adapter import FullyShardedDataParallel as megatron_FSDP
-from megatron.core.optimizer.optimizer import param_group_identifier_keys
+from megatron.core.utils import (
+    StragglerDetector,
+    check_param_hashes_across_dp_replicas,
+    get_model_config,
+)
+from megatron.training.checkpointing import checkpoint_exists, load_checkpoint, save_checkpoint
 
 try:
     from megatron.core.distributed import TorchFullyShardedDataParallel as torch_FSDP
@@ -72,61 +78,62 @@ except ImportError:
 
 from megatron.core.distributed import finalize_model_grads
 from megatron.core.enums import ModelType
-from megatron.core.optimizer import get_megatron_optimizer, OptimizerConfig
-from megatron.core.rerun_state_machine import (
-    get_rerun_state_machine,
-    destroy_rerun_state_machine,
-    RerunDataIterator,
-    RerunMode,
-)
-from megatron.training.initialize import initialize_megatron
-from megatron.training.initialize import write_args_to_tensorboard
-from megatron.training.initialize import set_jit_fusion_options
-from megatron.training.utils import get_batch_on_this_cp_rank, get_batch_on_this_tp_rank
-from megatron.legacy.data.data_samplers import build_pretraining_data_loader
-from megatron.core.optimizer_param_scheduler import OptimizerParamScheduler
-from megatron.core.transformer.moe import upcycling_utils
-from megatron.core.transformer.moe.moe_utils import track_moe_metrics
-from megatron.core.transformer.multi_token_prediction import MTPLossLoggingHelper
-from megatron.core.parallel_state import destroy_global_memory_buffer, destroy_model_parallel
-from megatron.core.pipeline_parallel import get_forward_backward_func
 from megatron.core.num_microbatches_calculator import (
     destroy_num_microbatches_calculator,
     get_current_global_batch_size,
     get_current_running_global_batch_size,
     get_num_microbatches,
-    update_num_microbatches
+    update_num_microbatches,
 )
+from megatron.core.optimizer import OptimizerConfig, get_megatron_optimizer
+from megatron.core.optimizer_param_scheduler import OptimizerParamScheduler
+from megatron.core.parallel_state import destroy_global_memory_buffer, destroy_model_parallel
+from megatron.core.pipeline_parallel import get_forward_backward_func
+from megatron.core.rerun_state_machine import (
+    RerunDataIterator,
+    RerunMode,
+    destroy_rerun_state_machine,
+    get_rerun_state_machine,
+)
+from megatron.core.transformer.moe import upcycling_utils
+from megatron.core.transformer.moe.moe_utils import track_moe_metrics
+from megatron.core.transformer.multi_token_prediction import MTPLossLoggingHelper
+from megatron.legacy.data.data_samplers import build_pretraining_data_loader
+from megatron.training.initialize import (
+    initialize_megatron,
+    set_jit_fusion_options,
+    write_args_to_tensorboard,
+)
+from megatron.training.utils import get_batch_on_this_cp_rank, get_batch_on_this_tp_rank
 
+from . import ft_integration, one_logger_utils
 from .async_utils import maybe_finalize_async_save
+from .global_vars import (
+    destroy_global_vars,
+    get_args,
+    get_beaker_client,
+    get_energy_monitor,
+    get_one_logger,
+    get_signal_handler,
+    get_tensorboard_writer,
+    get_timers,
+    get_tokenizer,
+    get_wandb_writer,
+)
 from .utils import (
     append_to_progress_log,
     calc_params_l2_norm,
     check_adlr_autoresume_termination,
-    logical_and_across_model_parallel_group,
-    reduce_max_stat_across_model_parallel_group,
     is_last_rank,
+    logical_and_across_model_parallel_group,
     print_rank_0,
     print_rank_last,
+    reduce_max_stat_across_model_parallel_group,
     report_memory,
+    to_empty_if_meta_device,
     unwrap_model,
     update_use_dist_ckpt,
-    to_empty_if_meta_device,
 )
-from .global_vars import (
-    destroy_global_vars,
-    get_args,
-    get_signal_handler,
-    get_timers,
-    get_tensorboard_writer,
-    get_wandb_writer,
-    get_one_logger,
-    get_tokenizer,
-    get_energy_monitor,
-)
-from . import one_logger_utils
-
-from . import ft_integration
 
 stimer = StragglerDetector()
 
@@ -627,8 +634,8 @@ def pretrain(
                 LocalCheckpointManager,
             )
             from nvidia_resiliency_ext.checkpointing.local.replication.group_utils import (
-                parse_group_sequence,
                 GroupWrapper,
+                parse_group_sequence,
             )
             from nvidia_resiliency_ext.checkpointing.local.replication.strategies import (
                 CliqueReplicationStrategy,
@@ -1359,6 +1366,7 @@ def training_log(
     timers = get_timers()
     writer = get_tensorboard_writer()
     wandb_writer = get_wandb_writer()
+    beaker = get_beaker_client()
     one_logger = get_one_logger()
     energy_monitor = get_energy_monitor()
 
@@ -1541,6 +1549,12 @@ def training_log(
         )
 
         one_logger_utils.track_e2e_metrics(args.log_throughput, throughput)
+
+        if beaker is not None:
+            gantry.api.write_metrics({
+                "time_per_iteration": elapsed_time_per_iteration,
+                "TPS": (args.global_batch_size * args.seq_length) / elapsed_time_per_iteration,
+            })
 
         if args.log_timers_to_tensorboard:
             if writer:
@@ -1921,8 +1935,9 @@ def train(
         print_rank_0("> Reinitializing microbatch calculator for GRPO training...")
         from megatron.core.num_microbatches_calculator import (
             destroy_num_microbatches_calculator,
-            init_num_microbatches_calculator
+            init_num_microbatches_calculator,
         )
+
         # First destroy the existing calculator
         destroy_num_microbatches_calculator()
         # Then initialize with the correct perform_rl_step=True context
@@ -1941,8 +1956,9 @@ def train(
 
     if args.run_workload_inspector_server:
         try:
-            from workload_inspector.utils.webserver import run_server
             import threading
+
+            from workload_inspector.utils.webserver import run_server
 
             threading.Thread(
                 target=run_server, daemon=True, args=(torch.distributed.get_rank(),)
