@@ -88,8 +88,8 @@ TRAINING_ARGS=(
     --micro-batch-size $MICRO_BATCH_SIZE
     --global-batch-size $GLOBAL_BATCH_SIZE
     --train-iters 100
-    --lr-decay-samples 1949218748
-    --lr-warmup-samples 3906252
+    --lr-decay-iters 1000
+    --lr-warmup-iters 20
     --lr 0.00015
     --min-lr 0.00001
     --decoupled-lr 5.0e-4      # Specific to decoupled AdamW, ensure optimizer is compatible
