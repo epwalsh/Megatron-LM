@@ -35,7 +35,7 @@ else
 fi
 
 # Path to the pretrain_gpt.py script, assuming this script is run from the root of the Megatron-LM repository
-PRETRAIN_SCRIPT_PATH="pretrain_gpt.py"
+PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
 # Fixed model and training parameters
 TP_SIZE=1     
@@ -87,7 +87,7 @@ MODEL_ARGS=(
 TRAINING_ARGS=(
     --micro-batch-size $MICRO_BATCH_SIZE
     --global-batch-size $GLOBAL_BATCH_SIZE
-    --train-samples 1000
+    --train-iters 100
     --lr-decay-samples 1949218748
     --lr-warmup-samples 3906252
     --lr 0.00015
