@@ -85,14 +85,16 @@ MODEL_ARGS=(
 
 DISTRIBUTED_ARGS=(
     # --init-model-with-meta-device
-    --data-parallel-sharding-strategy optim_grads_params
-    --context-parallel-size 1
-    --use-torch-fsdp2
-    --no-gradient-accumulation-fusion
+    # Data parallelism.
+    # --data-parallel-sharding-strategy optim_grads_params
+    # --use-torch-fsdp2
+    # --no-gradient-accumulation-fusion
     # --use-megatron-fsdp
-    # --use-distributed-optimizer
-    # --overlap-grad-reduce
-    # --overlap-param-gather
+    --use-distributed-optimizer
+    --overlap-grad-reduce
+    --overlap-param-gather
+    # Context parallelism.
+    --context-parallel-size 1
 )
 
 TRAINING_ARGS=(
