@@ -1551,9 +1551,15 @@ def training_log(
         one_logger_utils.track_e2e_metrics(args.log_throughput, throughput)
 
         if beaker is not None:
+            tps = (args.global_batch_size * args.seq_length) / elapsed_time_per_iteration
+            gantry.api.update_workload_description(
+              f"({int(tps):,d} TPS)",
+              "append",
+              client=beaker,
+            )
             gantry.api.write_metrics({
                 "time_per_iteration": elapsed_time_per_iteration,
-                "TPS": (args.global_batch_size * args.seq_length) / elapsed_time_per_iteration,
+                "TPS": tps,
             })
 
         if args.log_timers_to_tensorboard:
