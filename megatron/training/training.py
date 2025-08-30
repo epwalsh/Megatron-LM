@@ -1550,7 +1550,7 @@ def training_log(
 
         one_logger_utils.track_e2e_metrics(args.log_throughput, throughput)
 
-        if beaker is not None:
+        if beaker is not None and iteration % args.beaker_log_interval == 0:
             tps = (args.global_batch_size * args.seq_length) / torch.distributed.get_world_size() / elapsed_time_per_iteration
             gantry.api.update_workload_description(
               f"({int(tps):,d} TPS)",
