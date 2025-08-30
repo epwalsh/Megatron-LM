@@ -165,8 +165,8 @@ else
 fi
 
 EVAL_AND_LOGGING_ARGS=(
-    --log-interval 1
-    --beaker-log-interval 10
+    --log-interval 5
+    --beaker-log-interval 5
     --eval-iters 0
     --eval-interval 1000
     --save-interval 1000
