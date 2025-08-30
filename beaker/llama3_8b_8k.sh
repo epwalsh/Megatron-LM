@@ -11,14 +11,8 @@ export OMP_NUM_THREADS=8
 #export NCCL_P2P_NET_CHUNKSIZE=${NCCL_P2P_NET_CHUNKSIZE:-2097152}
 #export NCCL_AVOID_RECORD_STREAMS=${NCCL_AVOID_RECORD_STREAMS:-1}
 
-CHECKPOINT_PATH=${1:-"checkpoints/llama3_8b_fp8"}
-TENSORBOARD_LOGS_PATH=${2:-"tensorboard_logs/llama3_8b_fp8"}
 TOKENIZER_ARG=${3:-"MOCK"} # Path to tokenizer model, or "MOCK"
 DATA_ARG=${4:-"MOCK"}     # Data prefix, or "MOCK"
-
-# Create directories if they don't exist
-mkdir -p "$(dirname "$CHECKPOINT_PATH")"
-mkdir -p "$(dirname "$TENSORBOARD_LOGS_PATH")"
 
 # Distributed training setup
 if [[ -n "$BEAKER_REPLICA_COUNT" ]]; then
@@ -172,7 +166,7 @@ else
 fi
 
 EVAL_AND_LOGGING_ARGS=(
-    --log-interval 5
+    --log-interval 1
     --beaker-log-interval 5
     --eval-iters 0
     --eval-interval 1000
@@ -183,15 +177,12 @@ EVAL_AND_LOGGING_ARGS=(
     --profile-step-end 6
     --ckpt-format torch_dist 
     --distributed-timeout-minutes 60
-    --save "$CHECKPOINT_PATH"
-    --load "$CHECKPOINT_PATH" 
-    --tensorboard-dir "$TENSORBOARD_LOGS_PATH"
 )
 
 # Ensure pretrain_gpt.py is found
 if [ ! -f "$PRETRAIN_SCRIPT_PATH" ]; then
-    echo "Error: pretrain_gpt.py not found at $PRETRAIN_SCRIPT_PATH"
-    echo "Please ensure you are running this script from the root of the Megatron-LM repository, and pretrain_gpt.py is present."
+    echo "Error: script $PRETRAIN_SCRIPT_PATH not found"
+    echo "Please ensure you are running this script from the root of the Megatron-LM repository, and that $PRETRAIN_SCRIPT_PATH is present."
     exit 1
 fi
 

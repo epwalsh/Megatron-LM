@@ -39,6 +39,7 @@ try:
     has_nvidia_modelopt = True
 except ImportError:
     has_nvidia_modelopt = False
+    add_modelopt_args = None
 
 stimer = StragglerDetector()
 
@@ -253,3 +254,5 @@ if __name__ == "__main__":
         if dist.is_initialized():
             print_rank_0("Shutting down process group...")
             dist.destroy_process_group()
+
+    print_rank_0("Done.")
