@@ -87,6 +87,7 @@ DISTRIBUTED_ARGS=(
     --context-parallel-size 1
     --sequence-parallel
     --use-distributed-optimizer
+    --use-torch-fsdp2
     --overlap-grad-reduce
     --overlap-param-gather
 )
