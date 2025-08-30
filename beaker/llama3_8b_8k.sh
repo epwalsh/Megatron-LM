@@ -42,7 +42,7 @@ PRETRAIN_SCRIPT_PATH="beaker/train.py"
 MICRO_BATCH_SIZE=4
 GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE))
 NUM_LAYERS=32  
-DTYPE="fp8"
+DTYPE="bf16"
 SEQ_LENGTH=8192
 MAX_POSITION_EMBEDDINGS=8192
 
@@ -108,8 +108,6 @@ TRAINING_ARGS=(
     --weight-decay 0.1
     --adam-beta1 0.9
     --adam-beta2 0.95
-    --bf16
-    --grad-reduce-in-bf16
     --cross-entropy-loss-fusion
     --calculate-per-token-loss 
     --manual-gc 
@@ -126,6 +124,14 @@ if [[ "$DTYPE" == "fp8" ]]; then
         "--fp8-amax-compute-algo max"
         "--fp8-param-gather"
     )
+elif [[ "$DTYPE" == "bf16" ]]; then
+    DTYPE_ARGS+=(
+        "--bf16"
+        "--grad-reduce-in-bf16"
+    )
+else
+    echo "unsuported DTYPE: $DTYPE"
+    exit 1
 fi
 
 
