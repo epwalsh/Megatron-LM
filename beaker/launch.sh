@@ -21,6 +21,7 @@ gantry run \
     --name="${name}-$(date +%Y%m%d-%H%M%S)" \
     --description="Megatron-LM ${name}" \
     --workspace=ai2/google_benchmarks \
+    --weka=oe-training-default:/weka/oe-training-default \
     --group=petew/B200_benchmarks \
     --group="petew/B200_benchmarks_${group_name}" \
     --priority=urgent \
@@ -29,6 +30,12 @@ gantry run \
     --env-secret='BEAKER_TOKEN' \
     --beaker-image=petew/megatron-lm \
     --system-python \
+    --replicas=2 \
+    --leader-selection \
+    --host-networking \
+    --propagate-failure \
+    --propagate-preemption \
+    --synchronized-start-timeout='5m' \
     --install=beaker/install.sh \
     --gpu-type=b200 \
     --gpus=8 -- \

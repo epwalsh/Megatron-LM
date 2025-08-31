@@ -42,7 +42,7 @@ SEQ_LENGTH=8192
 MAX_POSITION_EMBEDDINGS=8192
 
 # Data cache path (useful for both mock and real data)
-DATA_CACHE_PATH="${PWD}/benchmark_cache_llama3_8b_fp8"
+DATA_CACHE_PATH="/weka/oe-training-default/petew/google_benchmarks/benchmark_cache_llama3_8b_fp8"
 mkdir -p "$DATA_CACHE_PATH"
 
 TORCHRUN_ARGS=(
