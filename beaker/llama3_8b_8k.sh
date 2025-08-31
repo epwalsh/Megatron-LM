@@ -73,7 +73,7 @@ MODEL_ARGS=(
     --attention-backend fused
     --apply-layernorm-1p 
     --untie-embeddings-and-output-weights
-    --disable-bias-linear 
+    --disable-bias-linear
 )
 
 DISTRIBUTED_ARGS=(
@@ -109,7 +109,8 @@ TRAINING_ARGS=(
     --calculate-per-token-loss 
     --manual-gc 
     --empty-unused-memory-level 1 
-    --exit-duration-in-mins 235 
+    --exit-duration-in-mins 235
+    --enable-cuda-graph
 )
 
 # Conditional arguments based on DTYPE (FP8)
