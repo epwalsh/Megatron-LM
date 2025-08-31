@@ -8,7 +8,8 @@ export OMP_NUM_THREADS=8
 #export NVTE_FWD_LAYERNORM_SM_MARGIN=${NVTE_FWD_LAYERNORM_SM_MARGIN:-16}
 #export NVTE_BWD_LAYERNORM_SM_MARGIN=${NVTE_BWD_LAYERNORM_SM_MARGIN:-16}
 #export NCCL_P2P_NET_CHUNKSIZE=${NCCL_P2P_NET_CHUNKSIZE:-2097152}
-#export NCCL_AVOID_RECORD_STREAMS=${NCCL_AVOID_RECORD_STREAMS:-1}
+export NCCL_AVOID_RECORD_STREAMS=${NCCL_AVOID_RECORD_STREAMS:-1}
+export NCCL_NVLS_ENABLE=0
 
 TOKENIZER_ARG=${3:-"MOCK"} # Path to tokenizer model, or "MOCK"
 DATA_ARG=${4:-"MOCK"}     # Data prefix, or "MOCK"
@@ -33,7 +34,7 @@ WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
 PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
 # Fixed model and training parameters
-MICRO_BATCH_SIZE=2
+MICRO_BATCH_SIZE=4
 GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE))
 NUM_LAYERS=32  
 DTYPE="bf16"
@@ -79,13 +80,13 @@ MODEL_ARGS=(
 DISTRIBUTED_ARGS=(
     # --init-model-with-meta-device
     # Data parallelism.
-    --data-parallel-sharding-strategy optim_grads_params
-    --use-torch-fsdp2
-    --no-gradient-accumulation-fusion
+    # --data-parallel-sharding-strategy optim_grads_params
+    # --use-torch-fsdp2
+    # --no-gradient-accumulation-fusion
     # --use-megatron-fsdp
-    # --use-distributed-optimizer
-    # --overlap-grad-reduce
-    # --overlap-param-gather
+    --use-distributed-optimizer
+    --overlap-grad-reduce
+    --overlap-param-gather
     # Context parallelism.
     --context-parallel-size 1
 )
