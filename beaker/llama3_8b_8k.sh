@@ -118,6 +118,7 @@ TRAINING_ARGS=(
     --exit-duration-in-mins 235
     --enable-cuda-graph
     --cuda-graph-scope full_iteration
+    --no-check-for-nan-in-loss-and-grad
 )
 
 # Conditional arguments based on DTYPE (FP8)
