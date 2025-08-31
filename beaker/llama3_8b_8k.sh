@@ -91,6 +91,12 @@ DISTRIBUTED_ARGS=(
     --context-parallel-size 1
 )
 
+ACTIVATION_CHECKPOINTING_ARGS=(
+    --recompute-activations
+    --recompute-granularity selective
+    --recompute-modules layernorm mla_up_proj
+)
+
 TRAINING_ARGS=(
     --micro-batch-size $MICRO_BATCH_SIZE
     --global-batch-size $GLOBAL_BATCH_SIZE
@@ -193,6 +199,7 @@ torchrun ${TORCHRUN_ARGS[@]} \
     ${MODEL_ARGS[@]} \
     ${TRAINING_ARGS[@]} \
     ${DISTRIBUTED_ARGS[@]} \
+    ${ACTIVATION_CHECKPOINTING_ARGS[@]} \
     ${DTYPE_ARGS[@]} \
     ${DATA_ARGS_LIST[@]} \
     ${EVAL_AND_LOGGING_ARGS[@]}
