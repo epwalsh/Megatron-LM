@@ -229,28 +229,30 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
 
     return train_ds, valid_ds, test_ds
 
-
-if __name__ == "__main__":
-
+def main():
     # Temporary for transition to core datasets
     train_valid_test_datasets_provider.is_distributed = True
 
     # Optionally enable inprocess restart on pretrain
     pretrain, store = inprocess_restart.maybe_wrap_for_inprocess_restart(pretrain)
 
-    #  try:
-    pretrain(
-        train_valid_test_datasets_provider,
-        partial(model_provider, gpt_builder),
-        ModelType.encoder_or_decoder,
-        forward_step,
-        args_defaults={'tokenizer_type': 'GPT2BPETokenizer'},
-        extra_args_provider=add_modelopt_args if has_nvidia_modelopt else None,
-        store=store,
-    )
-    print_rank_0("Training complete")
-    dist.barrier()
-    #  finally:
-    #      if dist.is_initialized():
-    #          print_rank_0("Shutting down process group...")
-    #          dist.destroy_process_group()
+    try:
+        pretrain(
+            train_valid_test_datasets_provider,
+            partial(model_provider, gpt_builder),
+            ModelType.encoder_or_decoder,
+            forward_step,
+            args_defaults={'tokenizer_type': 'GPT2BPETokenizer'},
+            extra_args_provider=add_modelopt_args if has_nvidia_modelopt else None,
+            store=store,
+        )
+        print_rank_0("Training complete")
+        dist.barrier()
+    finally:
+        if dist.is_initialized():
+            print_rank_0("Shutting down process group...")
+            dist.destroy_process_group()
+
+
+if __name__ == "__main__":
+    main()

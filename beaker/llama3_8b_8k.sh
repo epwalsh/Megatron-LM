@@ -2,7 +2,6 @@
 
 # Environment variables for performance tuning
 # export CUDA_DEVICE_MAX_CONNECTIONS=${CUDA_DEVICE_MAX_CONNECTIONS:-1}
-export NVTE_FUSED_ATTN=1
 export OMP_NUM_THREADS=8
 #export LOG_LEVEL=${LOG_LEVEL:-INFO}
 #export NCCL_IB_TIMEOUT=${NCCL_IB_TIMEOUT:-19}
