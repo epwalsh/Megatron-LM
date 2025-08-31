@@ -34,7 +34,7 @@ WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
 PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
 # Fixed model and training parameters
-MICRO_BATCH_SIZE=1
+MICRO_BATCH_SIZE=2
 GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE))
 NUM_LAYERS=32  
 DTYPE="bf16"
@@ -88,7 +88,7 @@ DISTRIBUTED_ARGS=(
     --overlap-param-gather
     # Context parallelism.
     --context-parallel-size 8
-    --cp-comm-type all_gather
+    --cp-comm-type p2p
 )
 
 ACTIVATION_CHECKPOINTING_ARGS=(
