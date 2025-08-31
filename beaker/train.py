@@ -234,10 +234,10 @@ def main():
     train_valid_test_datasets_provider.is_distributed = True
 
     # Optionally enable inprocess restart on pretrain
-    pretrain, store = inprocess_restart.maybe_wrap_for_inprocess_restart(pretrain)
+    pretrain_, store = inprocess_restart.maybe_wrap_for_inprocess_restart(pretrain)
 
     try:
-        pretrain(
+        pretrain_(
             train_valid_test_datasets_provider,
             partial(model_provider, gpt_builder),
             ModelType.encoder_or_decoder,
