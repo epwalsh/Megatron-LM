@@ -94,7 +94,7 @@ DISTRIBUTED_ARGS=(
 ACTIVATION_CHECKPOINTING_ARGS=(
     --recompute-activations
     --recompute-granularity selective
-    --recompute-modules layernorm mla_up_proj
+    --recompute-modules layernorm core_attn
 )
 
 TRAINING_ARGS=(
