@@ -54,7 +54,6 @@ TORCHRUN_ARGS=(
 )
 
 MODEL_ARGS=(
-    --use-mcore-models
     --num-layers $NUM_LAYERS
     --hidden-size 4096
     --ffn-hidden-size 14336
@@ -65,7 +64,7 @@ MODEL_ARGS=(
     --seq-length $SEQ_LENGTH
     --max-position-embeddings $MAX_POSITION_EMBEDDINGS
     --position-embedding-type rope
-    --rotary-base 1000000 
+    --rotary-base 1000000
     --rotary-percent 1.0
     --attention-dropout 0.0
     --hidden-dropout 0.0
@@ -92,9 +91,9 @@ DISTRIBUTED_ARGS=(
 )
 
 ACTIVATION_CHECKPOINTING_ARGS=(
-    --recompute-activations
-    --recompute-granularity selective
-    --recompute-modules layernorm core_attn
+    # --recompute-activations
+    # --recompute-granularity selective
+    # --recompute-modules layernorm
 )
 
 TRAINING_ARGS=(
@@ -118,6 +117,7 @@ TRAINING_ARGS=(
     --empty-unused-memory-level 1 
     --exit-duration-in-mins 235
     --enable-cuda-graph
+    --cuda-graph-scope full_iteration
 )
 
 # Conditional arguments based on DTYPE (FP8)
