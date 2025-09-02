@@ -34,7 +34,7 @@ WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
 PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
 # Fixed model and training parameters
-MICRO_BATCH_SIZE=1
+MICRO_BATCH_SIZE=2
 GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE))
 DTYPE="bf16"
 SEQ_LENGTH=8192
@@ -91,8 +91,8 @@ DISTRIBUTED_ARGS=(
     --overlap-grad-reduce
     --overlap-param-gather
     # Tensor parallelism.
-	--tensor-model-parallel-size 2
-	--pipeline-model-parallel-size $((NUM_NODES*4))
+	--tensor-model-parallel-size 4
+	--pipeline-model-parallel-size $((NUM_NODES*2))
     # Context parallelism.
     --context-parallel-size 1
 )
