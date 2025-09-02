@@ -31,7 +31,7 @@ gantry run \
     --beaker-image=petew/megatron-lm \
     --system-python \
     --install=beaker/install.sh \
-    --replicas=4 \
+    --replicas=5 \
     --leader-selection \
     --host-networking \
     --propagate-failure \
