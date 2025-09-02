@@ -35,7 +35,7 @@ PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
 # Fixed model and training parameters
 MICRO_BATCH_SIZE=1
-GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE))
+GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE/8))
 NUM_LAYERS=32  
 DTYPE="bf16"
 SEQ_LENGTH=131072
@@ -88,7 +88,7 @@ DISTRIBUTED_ARGS=(
     --overlap-param-gather
     # Context parallelism.
     --context-parallel-size 8
-    --cp-comm-type p2p
+    --cp-comm-type all_gather
 )
 
 ACTIVATION_CHECKPOINTING_ARGS=(
