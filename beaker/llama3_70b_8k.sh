@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Environment variables for performance tuning
-# export CUDA_DEVICE_MAX_CONNECTIONS=${CUDA_DEVICE_MAX_CONNECTIONS:-1}
+export CUDA_DEVICE_MAX_CONNECTIONS=${CUDA_DEVICE_MAX_CONNECTIONS:-1}
 export OMP_NUM_THREADS=8
 #export LOG_LEVEL=${LOG_LEVEL:-INFO}
 #export NCCL_IB_TIMEOUT=${NCCL_IB_TIMEOUT:-19}
@@ -81,11 +81,11 @@ DISTRIBUTED_ARGS=(
     # --use-torch-fsdp2
     # --no-gradient-accumulation-fusion
     # Data parallelism with megatron FSDP.
-    --use-megatron-fsdp
-    --init-model-with-meta-device
-    --use-distributed-optimizer
-    --overlap-grad-reduce
-    --overlap-param-gather
+    # --use-megatron-fsdp
+    # --init-model-with-meta-device
+    # --use-distributed-optimizer
+    # --overlap-grad-reduce
+    # --overlap-param-gather
     # Data parallelism, ZeRO-1 style.
     --use-distributed-optimizer
     --overlap-grad-reduce
