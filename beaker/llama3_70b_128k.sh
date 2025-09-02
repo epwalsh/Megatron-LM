@@ -92,9 +92,9 @@ DISTRIBUTED_ARGS=(
     --overlap-param-gather
     # Tensor parallelism.
 	--tensor-model-parallel-size 1
-	--pipeline-model-parallel-size $((NUM_NODES*1))
+	--pipeline-model-parallel-size $((NUM_NODES*2))
     # Context parallelism.
-    --context-parallel-size 8
+    --context-parallel-size 4
     --cp-comm-type p2p
 )
 
