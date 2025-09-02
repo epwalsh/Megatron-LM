@@ -96,6 +96,8 @@ DISTRIBUTED_ARGS=(
 
 ACTIVATION_CHECKPOINTING_ARGS=(
     --recompute-granularity full
+    --recompute-method block
+    --recompute-num-layers 80
     # --recompute-granularity selective
     # --recompute-modules layernorm mlp
 )
