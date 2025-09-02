@@ -36,10 +36,8 @@ PRETRAIN_SCRIPT_PATH="beaker/train.py"
 # Fixed model and training parameters
 MICRO_BATCH_SIZE=1
 GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE/8))
-NUM_LAYERS=32  
 DTYPE="bf16"
 SEQ_LENGTH=131072
-MAX_POSITION_EMBEDDINGS="$SEQ_LENGTH"
 
 # Data cache path (useful for both mock and real data)
 DATA_CACHE_PATH="/weka/oe-training-default/petew/google_benchmarks/benchmark_cache_llama3_8b_fp8"
@@ -54,7 +52,7 @@ TORCHRUN_ARGS=(
 )
 
 MODEL_ARGS=(
-    --num-layers $NUM_LAYERS
+    --num-layers 32
     --hidden-size 4096
     --ffn-hidden-size 14336
     --num-attention-heads 32
@@ -62,7 +60,7 @@ MODEL_ARGS=(
     --num-query-groups 8
     --kv-channels 128
     --seq-length $SEQ_LENGTH
-    --max-position-embeddings $MAX_POSITION_EMBEDDINGS
+    --max-position-embeddings $SEQ_LENGTH
     --position-embedding-type rope
     --rotary-base 1000000
     --rotary-percent 1.0

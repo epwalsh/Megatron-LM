@@ -34,7 +34,7 @@ WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
 PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
 # Fixed model and training parameters
-MICRO_BATCH_SIZE=2
+MICRO_BATCH_SIZE=1
 GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE))
 DTYPE="bf16"
 SEQ_LENGTH=8192
@@ -52,10 +52,10 @@ TORCHRUN_ARGS=(
 )
 
 MODEL_ARGS=(
-    --num-layers 32
-    --hidden-size 4096
-    --ffn-hidden-size 14336
-    --num-attention-heads 32
+    --num-layers 80
+    --hidden-size 8192
+    --ffn-hidden-size 28672
+    --num-attention-heads 64
     --group-query-attention
     --num-query-groups 8
     --kv-channels 128
@@ -76,14 +76,20 @@ MODEL_ARGS=(
 
 DISTRIBUTED_ARGS=(
     # --init-model-with-meta-device
-    # Data parallelism.
+    # Data parallelism with torch FSDP2.
     # --data-parallel-sharding-strategy optim_grads_params
     # --use-torch-fsdp2
     # --no-gradient-accumulation-fusion
-    # --use-megatron-fsdp
+    # Data parallelism with megatron FSDP.
+    --use-megatron-fsdp
+    --init-model-with-meta-device
     --use-distributed-optimizer
     --overlap-grad-reduce
     --overlap-param-gather
+    # Data parallelism, ZeRO-1 style.
+    # --use-distributed-optimizer
+    # --overlap-grad-reduce
+    # --overlap-param-gather
     # Context parallelism.
     --context-parallel-size 1
 )

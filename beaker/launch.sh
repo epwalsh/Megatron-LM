@@ -31,6 +31,12 @@ gantry run \
     --beaker-image=petew/megatron-lm \
     --system-python \
     --install=beaker/install.sh \
+    --replicas=2 \
+    --leader-selection \
+    --host-networking \
+    --propagate-failure \
+    --propagate-preemption \
+    --synchronized-start-timeout='5m' \
     --gpu-type=b200 \
     --gpus=8 -- \
     "$script"
