@@ -87,17 +87,20 @@ DISTRIBUTED_ARGS=(
     --overlap-grad-reduce
     --overlap-param-gather
     # Data parallelism, ZeRO-1 style.
-    # --use-distributed-optimizer
-    # --overlap-grad-reduce
-    # --overlap-param-gather
+    --use-distributed-optimizer
+    --overlap-grad-reduce
+    --overlap-param-gather
+    # Tensor parallelism.
+	--tensor-model-parallel-size 8
+	--pipeline-model-parallel-size $NUM_NODES
     # Context parallelism.
     --context-parallel-size 1
 )
 
 ACTIVATION_CHECKPOINTING_ARGS=(
-    --recompute-granularity full
-    --recompute-method block
-    --recompute-num-layers 80
+    # --recompute-granularity full
+    # --recompute-method block
+    # --recompute-num-layers 80
     # --recompute-granularity selective
     # --recompute-modules layernorm mlp
 )
