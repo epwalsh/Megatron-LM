@@ -88,7 +88,7 @@ DISTRIBUTED_ARGS=(
     --overlap-param-gather
     # Context parallelism.
     --context-parallel-size 8
-    --cp-comm-type all_gather
+    --cp-comm-type p2p
 )
 
 ACTIVATION_CHECKPOINTING_ARGS=(
