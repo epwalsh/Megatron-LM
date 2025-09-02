@@ -186,7 +186,8 @@ EVAL_AND_LOGGING_ARGS=(
     --profile
     --profile-step-start 4
     --profile-step-end 6
-    --ckpt-format torch_dist 
+    # --ckpt-format torch_dist 
+    --ckpt-format fsdp_dtensor
     --distributed-timeout-minutes 60
 )
 
