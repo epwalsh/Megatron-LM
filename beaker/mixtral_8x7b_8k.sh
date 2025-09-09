@@ -2,7 +2,7 @@
 
 # Environment variables for performance tuning
 export CUDA_DEVICE_MAX_CONNECTIONS=${CUDA_DEVICE_MAX_CONNECTIONS:-1}
-export OMP_NUM_THREADS=8
+export OMP_NUM_THREADS=1
 #export LOG_LEVEL=${LOG_LEVEL:-INFO}
 #export NCCL_IB_TIMEOUT=${NCCL_IB_TIMEOUT:-19}
 #export NVTE_FWD_LAYERNORM_SM_MARGIN=${NVTE_FWD_LAYERNORM_SM_MARGIN:-16}
@@ -54,6 +54,7 @@ TORCHRUN_ARGS=(
 )
 
 MODEL_ARGS=(
+    --use-mcore-models
     --num-layers 32
     --hidden-size 4096
     --ffn-hidden-size 14336
