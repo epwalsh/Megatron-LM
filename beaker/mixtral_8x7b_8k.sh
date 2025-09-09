@@ -85,6 +85,7 @@ MODEL_ARGS=(
     --moe-router-force-load-balancing
     --moe-expert-capacity-factor 1.0
     --moe-permute-fusion
+    --overlap-moe-expert-parallel-comm
 )
 
 DISTRIBUTED_ARGS=(
