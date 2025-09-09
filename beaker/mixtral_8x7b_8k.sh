@@ -36,7 +36,7 @@ PRETRAIN_SCRIPT_PATH="beaker/train.py"
 PP_DEGREE="$NUM_NODES"
 
 # Fixed model and training parameters
-MICRO_BATCH_SIZE=2
+MICRO_BATCH_SIZE=1
 GLOBAL_BATCH_SIZE=$((MICRO_BATCH_SIZE*PP_DEGREE*8))
 DTYPE="bf16"
 SEQ_LENGTH=8192
@@ -81,9 +81,9 @@ MODEL_ARGS=(
     --moe-router-load-balancing-type aux_loss
     --moe-aux-loss-coeff 1e-2
     --moe-grouped-gemm
-    # --moe-token-dispatcher-type alltoall
-    --moe-token-dispatcher-type flex
-    --moe-enable-deepep
+    --moe-token-dispatcher-type alltoall
+    # --moe-token-dispatcher-type flex
+    # --moe-enable-deepep
     --moe-router-force-load-balancing
     --moe-expert-capacity-factor 1.0
     --moe-permute-fusion
