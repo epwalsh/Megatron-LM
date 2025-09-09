@@ -81,7 +81,9 @@ MODEL_ARGS=(
     --moe-router-load-balancing-type aux_loss
     --moe-aux-loss-coeff 1e-2
     --moe-grouped-gemm
-    --moe-token-dispatcher-type alltoall
+    # --moe-token-dispatcher-type alltoall
+    --moe-token-dispatcher-type flex
+    --moe-enable-deepep
     --moe-router-force-load-balancing
     --moe-expert-capacity-factor 1.0
     --moe-permute-fusion
