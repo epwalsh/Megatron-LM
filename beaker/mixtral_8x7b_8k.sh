@@ -212,12 +212,12 @@ if [ ! -f "$PRETRAIN_SCRIPT_PATH" ]; then
 fi
 
 # Run the training command
-torchrun "${TORCHRUN_ARGS[@]}" \
-    "$PRETRAIN_SCRIPT_PATH" \
-    "${MODEL_ARGS[@]}" \
-    "${TRAINING_ARGS[@]}" \
-    "${DISTRIBUTED_ARGS[@]}" \
-    "${ACTIVATION_CHECKPOINTING_ARGS[@]}" \
-    "${DTYPE_ARGS[@]}" \
-    "${DATA_ARGS_LIST[@]}" \
-    "${EVAL_AND_LOGGING_ARGS[@]}"
+torchrun ${TORCHRUN_ARGS[@]} \
+    $PRETRAIN_SCRIPT_PATH \
+    ${MODEL_ARGS[@]} \
+    ${TRAINING_ARGS[@]} \
+    ${DISTRIBUTED_ARGS[@]} \
+    ${ACTIVATION_CHECKPOINTING_ARGS[@]} \
+    ${DTYPE_ARGS[@]} \
+    ${DATA_ARGS_LIST[@]} \
+    ${EVAL_AND_LOGGING_ARGS[@]}
