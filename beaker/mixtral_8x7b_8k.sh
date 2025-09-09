@@ -84,6 +84,7 @@ MODEL_ARGS=(
     --moe-token-dispatcher-type alltoall
     --moe-router-force-load-balancing
     --moe-expert-capacity-factor 1.0
+    --moe-permute-fusion
 )
 
 DISTRIBUTED_ARGS=(
