@@ -28,14 +28,14 @@ else
     MASTER_ADDR=${MASTER_ADDR:-localhost}
     MASTER_PORT=${MASTER_PORT:-6000}
 fi
-WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
+# WORLD_SIZE=$(($GPUS_PER_NODE*$NUM_NODES))
 
 # Path to the pretrain_gpt.py script, assuming this script is run from the root of the Megatron-LM repository
 PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
+PP_DEGREE="$NUM_NODES"
+
 # Fixed model and training parameters
-TP_DEGREE=4
-PP_DEGREE=$((NUM_NODES*8/TP_DEGREE))
 MICRO_BATCH_SIZE=1
 GLOBAL_BATCH_SIZE=$((MICRO_BATCH_SIZE*PP_DEGREE*4))
 DTYPE="bf16"
@@ -46,34 +46,41 @@ DATA_CACHE_PATH="/weka/oe-training-default/petew/google_benchmarks/benchmark_cac
 mkdir -p "$DATA_CACHE_PATH"
 
 TORCHRUN_ARGS=(
-    --nproc_per_node $GPUS_PER_NODE
-    --nnodes $NUM_NODES
-    --node_rank $NODE_RANK
-    --master_addr $MASTER_ADDR
-    --master_port $MASTER_PORT
+    --nproc_per_node "$GPUS_PER_NODE"
+    --nnodes "$NUM_NODES"
+    --node_rank "$NODE_RANK"
+    --master_addr "$MASTER_ADDR"
+    --master_port "$MASTER_PORT"
 )
 
 MODEL_ARGS=(
-    --num-layers 80
-    --hidden-size 8192
-    --ffn-hidden-size 28672
-    --num-attention-heads 64
+    --num-layers 32
+    --hidden-size 4096
+    --ffn-hidden-size 14336
+    --num-attention-heads 32
+    --normalization RMSNorm
     --group-query-attention
     --num-query-groups 8
-    --kv-channels 128
-    --seq-length $SEQ_LENGTH
-    --max-position-embeddings $SEQ_LENGTH
+    --no-masked-softmax-fusion
+    --no-position-embedding
+    --seq-length "$SEQ_LENGTH"
+    --max-position-embeddings "$SEQ_LENGTH"
     --position-embedding-type rope
     --rotary-base 1000000
-    --rotary-percent 1.0
     --attention-dropout 0.0
     --hidden-dropout 0.0
     --swiglu
-    --init-method-std 0.0134
+    --init-method-std 0.01
     --attention-backend fused
-    --apply-layernorm-1p 
     --untie-embeddings-and-output-weights
     --disable-bias-linear
+    # MOE-specific
+    --num-experts 8
+    --moe-router-topk 2
+    --moe-router-load-balancing-type aux_loss
+    --moe-aux-loss-coeff 1e-2
+    --moe-grouped-gemm
+    --moe-token-dispatcher-type alltoall
 )
 
 DISTRIBUTED_ARGS=(
@@ -92,10 +99,9 @@ DISTRIBUTED_ARGS=(
     --use-distributed-optimizer
     --overlap-grad-reduce
     --overlap-param-gather
-    # Tensor parallelism.
-	--tensor-model-parallel-size "$TP_DEGREE"
+    --expert-model-parallel-size 8
 	--pipeline-model-parallel-size "$PP_DEGREE"
-    # Context parallelism.
+    --tensor-model-parallel-size 1
     --context-parallel-size 1
 )
 
@@ -108,8 +114,8 @@ ACTIVATION_CHECKPOINTING_ARGS=(
 )
 
 TRAINING_ARGS=(
-    --micro-batch-size $MICRO_BATCH_SIZE
-    --global-batch-size $GLOBAL_BATCH_SIZE
+    --micro-batch-size "$MICRO_BATCH_SIZE"
+    --global-batch-size "$GLOBAL_BATCH_SIZE"
     --train-iters 100
     --lr-decay-iters 1000
     --lr-warmup-iters 20
@@ -206,12 +212,12 @@ if [ ! -f "$PRETRAIN_SCRIPT_PATH" ]; then
 fi
 
 # Run the training command
-torchrun ${TORCHRUN_ARGS[@]} \
+torchrun "${TORCHRUN_ARGS[@]}" \
     "$PRETRAIN_SCRIPT_PATH" \
-    ${MODEL_ARGS[@]} \
-    ${TRAINING_ARGS[@]} \
-    ${DISTRIBUTED_ARGS[@]} \
-    ${ACTIVATION_CHECKPOINTING_ARGS[@]} \
-    ${DTYPE_ARGS[@]} \
-    ${DATA_ARGS_LIST[@]} \
-    ${EVAL_AND_LOGGING_ARGS[@]}
+    "${MODEL_ARGS[@]}" \
+    "${TRAINING_ARGS[@]}" \
+    "${DISTRIBUTED_ARGS[@]}" \
+    "${ACTIVATION_CHECKPOINTING_ARGS[@]}" \
+    "${DTYPE_ARGS[@]}" \
+    "${DATA_ARGS_LIST[@]}" \
+    "${EVAL_AND_LOGGING_ARGS[@]}"

@@ -19,6 +19,7 @@ gantry run \
     --yes \
     --allow-dirty \
     --name="${name}-$(date +%Y%m%d-%H%M%S)" \
+    --slack-webhook-url="$SLACK_WEBHOOK_URL" \
     --description="Megatron-LM ${name}" \
     --workspace=ai2/google_benchmarks \
     --weka=oe-training-default:/weka/oe-training-default \
@@ -31,7 +32,7 @@ gantry run \
     --beaker-image=petew/megatron-lm \
     --system-python \
     --install=beaker/install.sh \
-    --replicas=5 \
+    --replicas=4 \
     --leader-selection \
     --host-networking \
     --propagate-failure \
