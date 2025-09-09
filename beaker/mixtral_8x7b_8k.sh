@@ -81,6 +81,8 @@ MODEL_ARGS=(
     --moe-aux-loss-coeff 1e-2
     --moe-grouped-gemm
     --moe-token-dispatcher-type alltoall
+    --moe-router-force-load-balancing
+    --moe-expert-capacity-factor 1.0
 )
 
 DISTRIBUTED_ARGS=(
