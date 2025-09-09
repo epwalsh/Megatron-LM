@@ -36,7 +36,7 @@ PRETRAIN_SCRIPT_PATH="beaker/train.py"
 PP_DEGREE="$NUM_NODES"
 
 # Fixed model and training parameters
-MICRO_BATCH_SIZE=1
+MICRO_BATCH_SIZE=2
 GLOBAL_BATCH_SIZE=$((MICRO_BATCH_SIZE*PP_DEGREE*8))
 DTYPE="bf16"
 SEQ_LENGTH=8192
@@ -85,7 +85,7 @@ MODEL_ARGS=(
     --moe-router-force-load-balancing
     --moe-expert-capacity-factor 1.0
     --moe-permute-fusion
-    --overlap-moe-expert-parallel-comm
+    # --overlap-moe-expert-parallel-comm  # fails
 )
 
 DISTRIBUTED_ARGS=(
