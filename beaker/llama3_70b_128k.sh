@@ -35,7 +35,7 @@ PRETRAIN_SCRIPT_PATH="beaker/train.py"
 
 # Fixed model and training parameters
 MICRO_BATCH_SIZE=1
-GLOBAL_BATCH_SIZE=$(($WORLD_SIZE*$MICRO_BATCH_SIZE))
+GLOBAL_BATCH_SIZE=$((MICRO_BATCH_SIZE*NUM_NODES*4))
 DTYPE="bf16"
 SEQ_LENGTH=131072
 
@@ -52,7 +52,8 @@ TORCHRUN_ARGS=(
 )
 
 MODEL_ARGS=(
-    --num-layers 80
+    # --num-layers 80
+    --num-layers 8
     --hidden-size 8192
     --ffn-hidden-size 28672
     --num-attention-heads 64
