@@ -37,7 +37,7 @@ PRETRAIN_SCRIPT_PATH="beaker/train.py"
 MICRO_BATCH_SIZE=1
 GLOBAL_BATCH_SIZE=$((MICRO_BATCH_SIZE*NUM_NODES*4))
 DTYPE="bf16"
-SEQ_LENGTH=131072
+SEQ_LENGTH=$((131072/2))
 
 # Data cache path (useful for both mock and real data)
 DATA_CACHE_PATH="/weka/oe-training-default/petew/google_benchmarks/benchmark_cache_llama3_8b_fp8"
