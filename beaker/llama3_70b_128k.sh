@@ -52,8 +52,8 @@ TORCHRUN_ARGS=(
 )
 
 MODEL_ARGS=(
-    --num-layers 80
-    # --num-layers 8  # for testing
+    # --num-layers 80
+    --num-layers 4  # for testing
     --hidden-size 8192
     --ffn-hidden-size 28672
     --num-attention-heads 64
